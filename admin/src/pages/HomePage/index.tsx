@@ -6,11 +6,12 @@
 
 import { Box, Table, Tbody, Td, Th, Thead, Tr, Typography } from '@strapi/design-system';
 
+import * as ApexCharts from 'apexcharts';
 import React, { useEffect, useState } from 'react';
 import pluginId from '../../pluginId';
-
 import { METRICS_SERVICES } from '../../services';
 
+const Chart = ApexCharts.default;
 export type RowItem = (string | number)[];
 export const MetricsTable = (props: { columns: string[]; rows: RowItem[] }) => {
   return (
@@ -51,9 +52,10 @@ const HomePage = () => {
   });
   const [intervalId, setIntervalId] = useState(null);
   const [dataTable, setDatatable] = useState<RowItem[]>([]);
+  const [lastMetrics, setLastMetrics] = useState<RowItem[]>([]);
 
   const getMetrics = () => {
-    METRICS_SERVICES.getMetrics('http://0.0.0.0:1337/api/metrics').then((res) => {
+    METRICS_SERVICES.getMetrics('http://localhost:1337/api/metrics').then((res) => {
       if (res.success && res.data) {
         setMetrics(res.data.mb);
       }
@@ -82,6 +84,17 @@ const HomePage = () => {
       }
 
       setDatatable(normalizedItems);
+
+      const verify = Array.isArray(lastMetrics);
+      console.log({
+        verify,
+      });
+
+      if (verify) {
+        const newValue = [...lastMetrics];
+        newValue.push(metrics);
+        setLastMetrics(newValue);
+      }
     }
   }, [metrics]);
   return (
@@ -121,7 +134,17 @@ const HomePage = () => {
         Parar
       </button>
 
+      <button
+        type="button"
+        onClick={() => {
+          setLastMetrics([]);
+        }}
+      >
+        Limpar
+      </button>
       <MetricsTable columns={['ID', 'METRIC', 'MB']} rows={dataTable} />
+
+      <textarea value={JSON.stringify(lastMetrics)}></textarea>
     </div>
   );
 };
