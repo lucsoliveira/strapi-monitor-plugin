@@ -4,9 +4,42 @@
  *
  */
 
-import React, { useState } from 'react';
+import { Box, Table, Tbody, Td, Th, Thead, Tr, Typography } from '@strapi/design-system';
+
+import React, { useEffect, useState } from 'react';
 import pluginId from '../../pluginId';
+
 import { METRICS_SERVICES } from '../../services';
+
+export type RowItem = (string | number)[];
+export const MetricsTable = (props: { columns: string[]; rows: RowItem[] }) => {
+  return (
+    <Box padding={8} background="neutral100">
+      <Table colCount={props.columns.length} rowCount={props.rows.length}>
+        <Thead>
+          <Tr>
+            {props.columns.map((c) => (
+              <Th>
+                <Typography variant="sigma">{c}</Typography>
+              </Th>
+            ))}
+          </Tr>
+        </Thead>
+        <Tbody>
+          {props.rows.map((r, index) => (
+            <Tr key={index}>
+              {r.map((c) => (
+                <Td>
+                  <Typography textColor="neutral800">{c}</Typography>
+                </Td>
+              ))}
+            </Tr>
+          ))}
+        </Tbody>
+      </Table>
+    </Box>
+  );
+};
 
 const HomePage = () => {
   const [metrics, setMetrics] = useState<any>(null);
@@ -16,8 +49,8 @@ const HomePage = () => {
     start: false,
     timestamp: new Date().toISOString(),
   });
-
   const [intervalId, setIntervalId] = useState(null);
+  const [dataTable, setDatatable] = useState<RowItem[]>([]);
 
   const getMetrics = () => {
     METRICS_SERVICES.getMetrics('http://0.0.0.0:1337/api/metrics').then((res) => {
@@ -36,12 +69,24 @@ const HomePage = () => {
     }
   }, [start]);
 
+  useEffect(() => {
+    if (metrics) {
+      const normalizedItems: RowItem[] = [];
+
+      let i = 1;
+      for (const key of Object.keys(metrics)) {
+        const value = metrics[key];
+        normalizedItems.push([i, key, value]);
+
+        i++;
+      }
+
+      setDatatable(normalizedItems);
+    }
+  }, [metrics]);
   return (
     <div>
       <h1>{pluginId}&apos;s HomePage</h1>
-      <p>Happy coding</p>
-
-      <p>{JSON.stringify(metrics)}</p>
 
       <input
         type="number"
@@ -75,6 +120,8 @@ const HomePage = () => {
       >
         Parar
       </button>
+
+      <MetricsTable columns={['ID', 'METRIC', 'MB']} rows={dataTable} />
     </div>
   );
 };
