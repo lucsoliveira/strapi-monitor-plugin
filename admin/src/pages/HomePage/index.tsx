@@ -71,6 +71,7 @@ const HomePage = () => {
     }
   }, [start]);
 
+  const getTimestamp = () => new Date().getTime();
   useEffect(() => {
     if (metrics) {
       const normalizedItems: RowItem[] = [];
@@ -86,13 +87,9 @@ const HomePage = () => {
       setDatatable(normalizedItems);
 
       const verify = Array.isArray(lastMetrics);
-      console.log({
-        verify,
-      });
-
       if (verify) {
         const newValue = [...lastMetrics];
-        newValue.push(metrics);
+        newValue.push({ ...metrics, timestamp: getTimestamp() });
         setLastMetrics(newValue);
       }
     }

@@ -1,10 +1,10 @@
 {
-  "name": "strapi-uri-monitor",
+  "name": "strapi-monitor",
   "version": "0.0.0",
   "description": "This is the description of the plugin.",
   "strapi": {
-    "name": "strapi-uri-monitor",
-    "description": "Description of strapi-uri-monitor plugin",
+    "name": "strapi-monitor",
+    "description": "Description of strapi-monitor plugin",
     "kind": "plugin"
   },
   "dependencies": {
